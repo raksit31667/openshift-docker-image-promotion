@@ -1,0 +1,1 @@
+# openshift-docker-image-promotion
