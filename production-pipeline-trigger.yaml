@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  secrettext: <any-base64-encoded-string>
+kind: Secret
+metadata:
+  annotations:
+    jenkins.openshift.io/secret.name: production-pipeline-trigger
+  labels:
+    credential.sync.jenkins.openshift.io: "true"
+  name: production-pipeline-trigger
+type: Opaque
