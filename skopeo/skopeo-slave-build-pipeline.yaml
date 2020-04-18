@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+ name: skopeo-slave-build-pipeline
+spec:
+ runPolicy: Parallel
+ source:
+   git:
+     ref: master
+     uri: https://github.com/raksit31667/openshift-docker-image-promotion
+   sourceSecret:
+     name: github
+   type: Git
+ strategy:
+   jenkinsPipelineStrategy:
+     jenkinsfilePath: Jenkinsfile
+   type: JenkinsPipeline

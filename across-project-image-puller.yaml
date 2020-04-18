@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: across-project-image-puller
+  name: ${RESOURCE_NAME}
+objects:
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    labels:
+      template: across-project-image-puller
+    name: ${RESOURCE_NAME}-system-image-puller
+  roleRef:
+    name: system:image-puller
+  subjects:
+  - kind: ServiceAccount
+    name: ${RESOURCE_NAME}
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    creationTimestamp: null
+    name: ${RESOURCE_NAME}
+parameters:
+- name: RESOURCE_NAME
+  value: across-project-image-puller

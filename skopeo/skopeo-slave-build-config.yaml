@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Template
+metadata: {}
+parameters:
+- name: PROJECT_NAME
+  displayName: Project Name
+  required: true
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: skopeo
+    labels:
+      app: skopeo
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: skopeo-slave-build-config
+  spec:
+    source:
+      git:
+        ref: master
+        uri: https://github.com/raksit31667/openshift-docker-image-promotion
+      sourceSecret:
+        name: github
+      contextDir: /skopeo
+      type: Git
+      runPolicy: Parallel
+    strategy:
+      dockerStrategy:
+        dockerfilePath: Dockerfile
+      type: Docker
+    output:
+      to:
+        kind: ImageStreamTag
+        name: skopeo:latest
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      role: jenkins-slave
+    name: jenkins-slave-skopeo
+  data:
+    skopeo: |-
+      <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+        <inheritFrom></inheritFrom>
+        <name>skopeo</name>
+        <instanceCap>2147483647</instanceCap>
+        <idleMinutes>0</idleMinutes>
+        <label>skopeo</label>
+        <serviceAccount>jenkins</serviceAccount>
+        <nodeSelector></nodeSelector>
+        <volumes>
+          <org.csanchez.jenkins.plugins.kubernetes.volumes.SecretVolume>
+            <mountPath>/run/secrets/kubernetes.io/non-production-cluster-token</mountPath>
+            <secretName>non-production-cluster-token</secretName>
+          </org.csanchez.jenkins.plugins.kubernetes.volumes.SecretVolume>
+        </volumes>
+        <containers>
+          <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+            <name>jnlp</name>
+            <image>docker-registry.default.svc:5000/${PROJECT_NAME}/skopeo:latest</image>
+            <privileged>false</privileged>
+            <alwaysPullImage>true</alwaysPullImage>
+            <workingDir>/tmp</workingDir>
+            <command></command>
+            <args>${computer.jnlpmac} ${computer.name}</args>
+            <ttyEnabled>false</ttyEnabled>
+            <resourceRequestCpu>1</resourceRequestCpu>
+            <resourceRequestMemory>1Gi</resourceRequestMemory>
+            <resourceLimitCpu>2</resourceLimitCpu>
+            <resourceLimitMemory>3Gi</resourceLimitMemory>
+            <envVars>
+              <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                <key>JAVA_TOOL_OPTIONS</key>
+                <value>-Dhttp.nonProxyHosts=localhost|*.localdomain.com|*cluster.local|*svc|10.*|*kubernetes.default|jenkinsmaster</value>
+              </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+            </envVars>
+          </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+        </containers>
+        <envVars/>
+        <annotations/>
+        <imagePullSecrets/>
+        <nodeProperties/>
+      </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
