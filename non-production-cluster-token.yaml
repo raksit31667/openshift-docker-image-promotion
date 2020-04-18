@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  token: <base64-encoded-token-from-serviceaccounts-across-project-image-puller>
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: non-production-cluster-token

@@ -10,6 +10,7 @@ spec:
      uri: https://github.com/raksit31667/openshift-docker-image-promotion
    sourceSecret:
      name: github
+   contextDir: /skopeo
    type: Git
  strategy:
    jenkinsPipelineStrategy:
