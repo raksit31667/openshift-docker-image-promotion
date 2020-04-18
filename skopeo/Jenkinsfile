@@ -1,0 +1,15 @@
+pipeline {
+  agent none
+  parameters {
+      string(name: 'PROJECT_NAME', description: 'OpenShift Project Name')
+  }
+  stages {
+    stage('Build Skopeo Slave Image') {
+      steps {
+        script {
+          sh "oc process -f skopeo-slave-build-config.yaml -p PROJECT_NAME=${params.PROJECT_NAME} | oc apply -n ${params.PROJECT_NAME} -f -"
+        }
+      }
+    }
+  }
+}
