@@ -12,7 +12,8 @@ pipeline {
                         "NON_PROD_REGISTRY": "",
                         "PROD_REGISTRY": "",
                         "NON_PROD_PROJECT_NAME": "",
-                        "PROD_PROJECT_NAME": ""
+                        "PROD_PROJECT_NAME": "",
+                        "GIT_COMMIT": ""
                     ]
                     def paramsString = JsonOutput.toJson(["env": params])
                     withCredentials([string(credentialsId: "production-pipeline-webhook-secret-text", variable: 'SECRETTEXT')]) {

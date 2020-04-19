@@ -1,0 +1,64 @@
+    pipeline {
+        agent {
+            label "skopeo"
+        }
+        options {
+            skipDefaultCheckout()
+        }
+        parameters {
+            string(
+                name: 'IMAGE_NAME',
+                description: 'Image name')
+            string(
+                name: 'IMAGE_TAG',
+                description: 'Image stream tag')
+            string(
+                name: 'NON_PROD_REGISTRY',
+                description: 'URL for source registry to pull from')
+            string(
+                name: 'PROD_REGISTRY',
+                description: 'URL for destination registry to push to')
+            string(
+                name: 'NON_PROD_PROJECT_NAME',
+                description: 'Source namespace')
+            string(
+                name: 'PROD_PROJECT_NAME',
+                description: 'Destination namespace')
+            string(
+                name: 'GIT_COMMIT',
+                description: 'The git commit revision')
+        }
+        stages {
+            stage("Copy Non-Production Image") {
+                steps {
+                    script {
+                        def nonProductionToken = readFile('/run/secrets/kubernetes.io/non-production-cluster-token/token').trim()
+                        def productionToken = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
+
+                        def nonProductionImage = "docker://${params.NON_PROD_REGISTRY}/${params.NON_PROD_PROJECT_NAME}/${params.IMAGE_NAME}:${params.GIT_COMMIT}"
+                        def productionImage = "docker://${params.PROD_REGISTRY}/${params.PROD_PROJECT_NAME}/${params.IMAGE_NAME}:${params.GIT_COMMIT}"
+
+                        sh """
+                            set +x
+                            skopeo copy \
+                            --src-tls-verify=False \
+                            --dest-tls-verify=False \
+                            --src-creds='openshift:${nonProductionToken}' \
+                            --dest-cert-dir='/var/run/secrets/kubernetes.io/serviceaccount' \
+                            --dest-creds='openshift:${productionToken}' \
+                            ${nonProductionImage} \
+                            ${productionImage}
+                        """
+                    }
+                }
+            }
+        }
+        post {
+            success {
+                echo "========pipeline executed successfully ========"
+            }
+            failure {
+                echo "========pipeline execution failed========"
+            }
+        }
+    }
