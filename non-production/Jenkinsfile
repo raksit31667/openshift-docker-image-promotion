@@ -1,0 +1,37 @@
+import groovy.json.JsonOutput
+
+pipeline {
+    agent none
+    stages {
+        stage("Trigger Production Pipeline") {
+            steps {
+                script {
+                    def params = [
+                        "IMAGE_NAME": "my-image",
+                        "IMAGE_TAG": "",
+                        "NON_PROD_REGISTRY": "",
+                        "PROD_REGISTRY": "",
+                        "NON_PROD_PROJECT_NAME": "",
+                        "PROD_PROJECT_NAME": ""
+                    ]
+                    def paramsString = JsonOutput.toJson(["env": params])
+                    withCredentials([string(credentialsId: "production-pipeline-webhook-secret-text", variable: 'SECRETTEXT')]) {
+                        sh """
+                            curl --fail -k -H "Content-Type: application/json" \
+                            -X POST your-openshift-production-cluster.com/oapi/v1/namespaces/${params.PROD_PROJECT_NAME}/buildconfigs/production-pipeline/webhooks/${SECRETTEXT}/generic \
+                            -d '${paramsString}'
+                        """
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "========pipeline executed successfully ========"
+        }
+        failure {
+            echo "========pipeline execution failed========"
+        }
+    }
+}
