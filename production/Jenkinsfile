@@ -10,23 +10,20 @@
                 name: 'IMAGE_NAME',
                 description: 'Image name')
             string(
-                name: 'IMAGE_TAG',
-                description: 'Image stream tag')
-            string(
                 name: 'NON_PROD_REGISTRY',
-                description: 'URL for source registry to pull from')
+                description: 'Non-production Docker registry to copy image from')
             string(
                 name: 'PROD_REGISTRY',
-                description: 'URL for destination registry to push to')
+                description: 'Production Docker registry to paste image to')
             string(
                 name: 'NON_PROD_PROJECT_NAME',
-                description: 'Source namespace')
+                description: 'Non-production project name')
             string(
                 name: 'PROD_PROJECT_NAME',
-                description: 'Destination namespace')
+                description: 'Production project name')
             string(
                 name: 'GIT_COMMIT',
-                description: 'The git commit revision')
+                description: 'The git commit tagged in an image')
         }
         stages {
             stage("Copy Non-Production Image") {

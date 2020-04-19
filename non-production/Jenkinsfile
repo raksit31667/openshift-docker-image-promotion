@@ -7,13 +7,12 @@ pipeline {
             steps {
                 script {
                     def params = [
-                        "IMAGE_NAME": "my-image",
-                        "IMAGE_TAG": "",
-                        "NON_PROD_REGISTRY": "",
-                        "PROD_REGISTRY": "",
-                        "NON_PROD_PROJECT_NAME": "",
-                        "PROD_PROJECT_NAME": "",
-                        "GIT_COMMIT": ""
+                        "IMAGE_NAME": "your-image-name-here",
+                        "NON_PROD_REGISTRY": "your-non-production-cluster-docker-registry-here",
+                        "PROD_REGISTRY": "your-production-cluster-docker-registry-here",
+                        "NON_PROD_PROJECT_NAME": "your-non-production-cluster-project-here",
+                        "PROD_PROJECT_NAME": "your-production-cluster-project-here",
+                        "GIT_COMMIT": "your-git-commit-tagged-in-an-image-here"
                     ]
                     def paramsString = JsonOutput.toJson(["env": params])
                     withCredentials([string(credentialsId: "production-pipeline-webhook-secret-text", variable: 'SECRETTEXT')]) {
