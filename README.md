@@ -34,9 +34,29 @@ oc apply -f non-production-cluster-token.yaml
 oc apply -f production-pipeline-webhook-secret-text.yaml
 ```
 
+5. Apply the non-production pipeline.
+
+```
+oc apply -f non-production/non-production-pipeline.yaml
+```
+
 ### Production cluster
-5. Apply the Secret for pipeline webhook, replace `WebHookSecretKey` with the same value defined in Step 4.
+6. Apply the Secret for pipeline webhook, replace `WebHookSecretKey` with the same value defined in Step 4.
 
 ```sh
 oc apply -f production-pipeline-webhook-secret-key.yaml
 ```
+
+7. Apply and run Skopeo Jenkins Slave pipeline
+
+```sh
+oc apply -f skopeo/skopeo-slave-build-pipeline.yaml
+```
+
+8. Apply the production pipeline.
+
+```
+oc apply -f production/production-pipeline.yaml
+```
+
+Run the non-production pipeline, it should trigger production pipeline with correct `GIT_COMMIT`.
