@@ -11,7 +11,7 @@
 1. Apply ServiceAccount and RoleBinding for pulling a referenced image across projects (or clusters.)
 
 ```sh
-oc process -f across-project-image-puller.yaml | oc apply -f -
+oc process -f non-production/across-project-image-puller.yaml | oc apply -f -
 ```
 
 2. Create the Secret which contains Kubernetes bearer token of ServiceAccount created from Step 1.
@@ -25,13 +25,13 @@ oc create secret generic non-production-cluster-token --dry-run=true -o yaml \
 3. Then apply the Secret generated from Step 2 to your project in the non-production cluster.
 
 ```sh
-oc apply -f non-production-cluster-token.yaml
+oc apply -f non-production/non-production-cluster-token.yaml
 ```
 
 4. Apply the Secret for triggering the production cluster pipeline, replace `secrettext` with any base64-encoded desired text.
 
 ```sh
-oc apply -f production-pipeline-webhook-secret-text.yaml
+oc apply -f non-production/production-pipeline-webhook-secret-text.yaml
 ```
 
 5. Apply the non-production pipeline.
@@ -44,7 +44,7 @@ oc apply -f non-production/non-production-pipeline.yaml
 6. Apply the Secret for pipeline webhook, replace `WebHookSecretKey` with the same value defined in Step 4.
 
 ```sh
-oc apply -f production-pipeline-webhook-secret-key.yaml
+oc apply -f production/production-pipeline-webhook-secret-key.yaml
 ```
 
 7. Apply and run Skopeo Jenkins Slave pipeline
