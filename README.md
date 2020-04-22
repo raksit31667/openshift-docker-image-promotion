@@ -22,25 +22,25 @@ oc create secret generic non-production-cluster-token --dry-run=true -o yaml \
     > non-production-cluster-token.yaml
 ```
 
-3. Then apply the Secret generated from Step 2 to your project in the non-production cluster.
-
-```sh
-oc apply -f non-production/non-production-cluster-token.yaml
-```
-
-4. Apply the Secret for triggering the production cluster pipeline, replace `secrettext` with any base64-encoded desired text.
+3. Apply the Secret for triggering the production cluster pipeline, replace `secrettext` with any base64-encoded desired text.
 
 ```sh
 oc apply -f non-production/production-pipeline-webhook-secret-text.yaml
 ```
 
-5. Apply the non-production pipeline.
+4. Apply the non-production pipeline.
 
 ```
 oc apply -f non-production/non-production-pipeline.yaml
 ```
 
 ### Production cluster
+5. Apply the Secret generated from Step 2 to your project in the production cluster.
+
+```sh
+oc apply -f non-production/non-production-cluster-token.yaml
+```
+
 6. Apply the Secret for pipeline webhook, replace `WebHookSecretKey` with the same value defined in Step 4.
 
 ```sh
