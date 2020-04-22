@@ -1,61 +1,61 @@
-    pipeline {
-        agent {
-            label "skopeo"
-        }
-        options {
-            skipDefaultCheckout()
-        }
-        parameters {
-            string(
-                name: 'IMAGE_NAME',
-                description: 'Image name')
-            string(
-                name: 'NON_PROD_REGISTRY',
-                description: 'Non-production Docker registry to copy image from')
-            string(
-                name: 'PROD_REGISTRY',
-                description: 'Production Docker registry to paste image to')
-            string(
-                name: 'NON_PROD_PROJECT_NAME',
-                description: 'Non-production project name')
-            string(
-                name: 'PROD_PROJECT_NAME',
-                description: 'Production project name')
-            string(
-                name: 'GIT_COMMIT',
-                description: 'The git commit tagged in an image')
-        }
-        stages {
-            stage("Copy Non-Production Image") {
-                steps {
-                    script {
-                        def nonProductionToken = readFile('/run/secrets/kubernetes.io/non-production-cluster-token/token').trim()
-                        def productionToken = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
+pipeline {
+    agent {
+        label "skopeo"
+    }
+    options {
+        skipDefaultCheckout()
+    }
+    parameters {
+        string(
+            name: 'IMAGE_NAME',
+            description: 'Image name')
+        string(
+            name: 'NON_PROD_REGISTRY',
+            description: 'Non-production Docker registry to copy image from')
+        string(
+            name: 'PROD_REGISTRY',
+            description: 'Production Docker registry to paste image to')
+        string(
+            name: 'NON_PROD_PROJECT_NAME',
+            description: 'Non-production project name')
+        string(
+            name: 'PROD_PROJECT_NAME',
+            description: 'Production project name')
+        string(
+            name: 'GIT_COMMIT',
+            description: 'The git commit tagged in an image')
+    }
+    stages {
+        stage("Copy Non-Production Image") {
+            steps {
+                script {
+                    def nonProductionToken = readFile('/run/secrets/kubernetes.io/non-production-cluster-token/token').trim()
+                    def productionToken = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
 
-                        def nonProductionImage = "docker://${params.NON_PROD_REGISTRY}/${params.NON_PROD_PROJECT_NAME}/${params.IMAGE_NAME}:${params.GIT_COMMIT}"
-                        def productionImage = "docker://${params.PROD_REGISTRY}/${params.PROD_PROJECT_NAME}/${params.IMAGE_NAME}:${params.GIT_COMMIT}"
+                    def nonProductionImage = "docker://${params.NON_PROD_REGISTRY}/${params.NON_PROD_PROJECT_NAME}/${params.IMAGE_NAME}:${params.GIT_COMMIT}"
+                    def productionImage = "docker://${params.PROD_REGISTRY}/${params.PROD_PROJECT_NAME}/${params.IMAGE_NAME}:${params.GIT_COMMIT}"
 
-                        sh """
-                            set +x
-                            skopeo copy \
-                            --src-tls-verify=False \
-                            --dest-tls-verify=False \
-                            --src-creds='openshift:${nonProductionToken}' \
-                            --dest-cert-dir='/var/run/secrets/kubernetes.io/serviceaccount' \
-                            --dest-creds='openshift:${productionToken}' \
-                            ${nonProductionImage} \
-                            ${productionImage}
-                        """
-                    }
+                    sh """
+                        set +x
+                        skopeo copy \
+                        --src-tls-verify=False \
+                        --dest-tls-verify=False \
+                        --src-creds='openshift:${nonProductionToken}' \
+                        --dest-cert-dir='/var/run/secrets/kubernetes.io/serviceaccount' \
+                        --dest-creds='openshift:${productionToken}' \
+                        ${nonProductionImage} \
+                        ${productionImage}
+                    """
                 }
             }
         }
-        post {
-            success {
-                echo "========pipeline executed successfully ========"
-            }
-            failure {
-                echo "========pipeline execution failed========"
-            }
+    }
+    post {
+        success {
+            echo "========pipeline executed successfully ========"
+        }
+        failure {
+            echo "========pipeline execution failed========"
         }
     }
+}
