@@ -13,6 +13,19 @@ spec:
    contextDir: /production
    type: Git
  strategy:
-   jenkinsPipelineStrategy:
-     jenkinsfilePath: Jenkinsfile
-   type: JenkinsPipeline
+  type: JenkinsPipeline
+  jenkinsPipelineStrategy:
+    jenkinsfilePath: Jenkinsfile
+    env:
+    - name: IMAGE_NAME
+    - name: NON_PROD_REGISTRY
+    - name: PROD_REGISTRY
+    - name: NON_PROD_PROJECT_NAME
+    - name: PROD_PROJECT_NAME
+    - name: GIT_COMMIT
+triggers:
+  - generic:
+      secretReference:
+        name: "production-pipeline-webhook-secret-key"
+      allowEnv: true
+    type: Generic
